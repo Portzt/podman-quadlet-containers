@@ -1,22 +1,36 @@
-# =============================================================================
-# Quadlet .container TEMPLATE — every available [Container] key with examples
-# =============================================================================
-# Source of truth: man podman-systemd.unit (5)
-# Place in: ~/.config/containers/systemd/  (rootless)
-#           /etc/containers/systemd/       (rootful)
-#
-# NOTE: Quadlet is strict — an unknown key makes the generator REJECT the unit.
-# Keys marked [5.x+] may not exist on older podman (RHEL 9 ships 4.9.x on
-# 9.4/9.5; check `podman --version` and your local man page before using).
-#
-# Validate before use:
-#   rootless: /usr/libexec/podman/quadlet -dryrun -user
-#   rootful:  /usr/libexec/podman/quadlet -dryrun
-#
-# Almost every key below is OPTIONAL. Only Image= (or Rootfs=) is required.
-# Delete what you don't need — this file is a reference, not a runnable unit.
-# =============================================================================
+# Quadlet `.container` Template
 
+A fully annotated reference of every available `[Container]` key, with examples.
+Source of truth: `man podman-systemd.unit (5)`.
+
+**Where it goes:**
+
+| Mode | Path |
+|---|---|
+| Rootless | `~/.config/containers/systemd/` |
+| Rootful | `/etc/containers/systemd/` |
+
+**Before you use it:**
+
+- Quadlet is strict — a single unknown key makes the generator **reject the whole unit**.
+- Keys marked `[5.x+]` may not exist on older Podman. RHEL 9 ships 4.9.x on 9.4/9.5 — check `podman --version` and your local man page first.
+- Almost every key below is **optional**. Only `Image=` (or `Rootfs=`) is required. Delete what you don't need — this file is a reference, not a runnable unit.
+
+**Validate before deploying:**
+
+```bash
+# rootless
+/usr/libexec/podman/quadlet -dryrun -user
+
+# rootful
+/usr/libexec/podman/quadlet -dryrun
+```
+
+---
+
+## The template
+
+```ini
 [Unit]
 # --- Standard systemd [Unit] section; nothing Quadlet-specific here ----------
 Description=Example application container
@@ -129,7 +143,7 @@ Secret=db_password
 # =============================================================================
 
 # Bind mount or named volume. Repeatable.
-#   :Z / :z  = SELinux relabel (private/shared)
+#   :Z / :z  = SELinux relabel (private/shared) — your usual convention
 #   :ro      = read-only
 # Can also reference a Quadlet .volume unit: Volume=data.volume:/data
 Volume=/srv/myapp/config:/config:Z,ro
@@ -285,7 +299,7 @@ LogDriver=journald
 
 # OCI labels / annotations (repeatable, key=value)
 Label=app=myapp
-# Annotation=org.example.owner=admin
+# Annotation=org.example.owner=tom
 
 # =============================================================================
 # POD MEMBERSHIP
@@ -325,3 +339,4 @@ TimeoutStartSec=300
 # Rootless units: default.target starts them at user login (pair with
 # `loginctl enable-linger <user>` for start-at-boot without login).
 WantedBy=multi-user.target default.target
+```
